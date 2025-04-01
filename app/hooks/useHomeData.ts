@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-interface Project {
+export interface Project {
   _id: string;
   title: string;
   des: string;
@@ -9,14 +9,14 @@ interface Project {
   link: string;
 }
 
-interface Testimonial {
+export interface Testimonial {
   _id: string;
   quote: string;
   name: string;
   title: string;
 }
 
-interface HomeData {
+export interface HomeData {
   projects: Project[];
   testimonials: Testimonial[];
   companies: any[];
@@ -24,7 +24,14 @@ interface HomeData {
   socialMedia: any[];
 }
 
-export function useHomeData() {
+export interface UseHomeDataReturn {
+  data: HomeData | null;
+  loading: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
+}
+
+export function useHomeData(): UseHomeDataReturn {
   const [data, setData] = useState<HomeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +46,13 @@ export function useHomeData() {
       }
       const result = await response.json();
       if (result.success) {
-        setData(result.data);
+        setData({
+          projects: result.data.projects || [],
+          testimonials: result.data.testimonials || [],
+          companies: result.data.companies || [],
+          workExperience: result.data.workExperience || [],
+          socialMedia: result.data.socialMedia || [],
+        });
       } else {
         throw new Error(result.message || "Failed to fetch data");
       }
@@ -55,9 +68,5 @@ export function useHomeData() {
     fetchData();
   }, []);
 
-  const refetch = () => {
-    fetchData();
-  };
-
-  return { data, loading, error, refetch };
+  return { data, loading, error, refetch: fetchData };
 }

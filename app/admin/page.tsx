@@ -197,11 +197,19 @@ const AdminPage = () => {
       const data = await response.json();
       if (data.success) {
         setContactData(data.data);
+      } else {
+        throw new Error(data.message || "Failed to fetch contacts");
       }
     } catch (error) {
       console.error("Error fetching contacts:", error);
     }
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchContacts();
+    }
+  }, [isAuthenticated]);
 
   const fetchProjects = async () => {
     try {
@@ -915,6 +923,40 @@ const AdminPage = () => {
                   </div>
                 </div>
               ))}
+
+            {activeTab === "contacts" && (
+              <div className="space-y-6">
+                {contactData.length === 0 ? (
+                  <p className="text-center text-gray-400">No messages yet.</p>
+                ) : (
+                  contactData.map((contact) => (
+                    <div
+                      key={contact._id}
+                      className="bg-[#1e2227] rounded-lg p-6 space-y-4"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="text-white font-medium text-lg">
+                            {contact.name}
+                          </h3>
+                          <p className="text-purple">{contact.email}</p>
+                        </div>
+                        <p className="text-gray-400 text-sm">{contact.date}</p>
+                      </div>
+                      <p className="text-gray-300">{contact.message}</p>
+                      <div className="flex justify-end">
+                        <button
+                          onClick={() => handleDelete(contact._id, "contacts")}
+                          className="text-red-500 hover:text-red-400 p-2 hover:bg-red-500/10 rounded flex items-center gap-2"
+                        >
+                          <FaTrash size={18} /> Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
           </div>
         </div>
 
