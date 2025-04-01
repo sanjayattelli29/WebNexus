@@ -1,36 +1,72 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { FaLocationArrow } from "react-icons/fa6";
 import { PinContainer } from "./ui/Pin";
+import { useHomeData } from "@/app/hooks/useHomeData";
+import { motion } from "framer-motion";
 
-interface Project {
-  _id: string;
-  title: string;
-  des: string;
-  img: string;
-  iconLists: string[];
-  link: string;
-}
+const LoadingProject = () => (
+  <div className="lg:min-h-[32.5rem] h-[25rem] flex items-center justify-center sm:w-96 w-[80vw] bg-[#1e2227] rounded-lg animate-pulse">
+    <div className="w-16 h-16 border-4 border-purple border-t-transparent rounded-full animate-spin"></div>
+  </div>
+);
+
+const ErrorMessage = ({ message }: { message: string }) => (
+  <div className="w-full text-center py-10">
+    <p className="text-red-500 mb-4">{message}</p>
+    <button
+      onClick={() => window.location.reload()}
+      className="bg-purple hover:bg-purple/80 text-white px-6 py-2 rounded-lg transition-colors"
+    >
+      Try Again
+    </button>
+  </div>
+);
 
 const RecentProjects = () => {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const { data, loading, error } = useHomeData();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("/api/home");
-        const data = await response.json();
-        if (data.success) {
-          setProjects(data.data.projects);
-        }
-      } catch (error) {
-        console.error("Error fetching projects:", error);
-      }
-    };
+  if (loading) {
+    return (
+      <div className="py-20">
+        <h1 className="heading">
+          A small selection of{" "}
+          <span className="text-purple">recent projects</span>
+        </h1>
+        <div className="flex flex-wrap items-center justify-center gap-16 mt-10">
+          {[1, 2, 3].map((i) => (
+            <LoadingProject key={i} />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
-    fetchData();
-  }, []);
+  if (error) {
+    return (
+      <div className="py-20">
+        <h1 className="heading">
+          A small selection of{" "}
+          <span className="text-purple">recent projects</span>
+        </h1>
+        <ErrorMessage message={error} />
+      </div>
+    );
+  }
+
+  if (!data?.projects?.length) {
+    return (
+      <div className="py-20">
+        <h1 className="heading">
+          A small selection of{" "}
+          <span className="text-purple">recent projects</span>
+        </h1>
+        <p className="text-center text-gray-400 mt-10">
+          No projects available yet.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="py-20">
@@ -40,10 +76,13 @@ const RecentProjects = () => {
       </h1>
 
       <div className="flex flex-wrap items-center justify-center gap-16 mt-10">
-        {projects.map((item) => (
-          <div
-            className="lg:min-h-[32.5rem] h-[25rem] flex items-center justify-center sm:w-96 w-[80vw]"
+        {data.projects.map((item) => (
+          <motion.div
             key={item._id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="lg:min-h-[32.5rem] h-[25rem] flex items-center justify-center sm:w-96 w-[80vw]"
           >
             <PinContainer title="/ui.aceternity.com" href={item.link}>
               <div className="relative flex items-center justify-center sm:w-96 w-[80vw] overflow-hidden h-[20vh] lg:h-[30vh] mb-10">
@@ -59,7 +98,7 @@ const RecentProjects = () => {
                   {item.img.includes("vimeo.com") ||
                   item.img.includes("youtube.com") ? (
                     <iframe
-                      src={item.img}
+                      src={`${item.img}?autoplay=1&loop=1&background=1&muted=1`}
                       title={item.title}
                       className="absolute inset-0 w-full h-full z-10"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -118,7 +157,7 @@ const RecentProjects = () => {
                 </div>
               </div>
             </PinContainer>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>
