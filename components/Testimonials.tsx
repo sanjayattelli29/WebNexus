@@ -28,15 +28,16 @@ const Testimonials = () => {
   const { data, loading, error } = useHomeData();
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  const testimonials = data?.testimonials ?? [];
+
   useEffect(() => {
-    const testimonials = data?.testimonials ?? [];
     if (testimonials.length > 0) {
       const timer = setInterval(() => {
         setCurrentIndex((prev) => (prev + 1) % testimonials.length);
       }, 5000);
       return () => clearInterval(timer);
     }
-  }, [data?.testimonials]);
+  }, [testimonials.length]);
 
   if (loading) {
     return (
@@ -62,7 +63,6 @@ const Testimonials = () => {
     );
   }
 
-  const testimonials = data?.testimonials ?? [];
   if (testimonials.length === 0) {
     return (
       <div className="py-20">
