@@ -15,6 +15,7 @@ const Grid = () => {
             // remove original classname condition
             className={item.className}
             img={item.img}
+            video={item.video}
             imgClassName={item.imgClassName}
             titleClassName={item.titleClassName}
             spareImg={item.spareImg}
