@@ -54,7 +54,8 @@ const RecentProjects = () => {
     );
   }
 
-  if (!data?.projects?.length) {
+  const projects = data?.projects ?? [];
+  if (projects.length === 0) {
     return (
       <div className="py-20">
         <h1 className="heading">
@@ -76,7 +77,7 @@ const RecentProjects = () => {
       </h1>
 
       <div className="flex flex-wrap items-center justify-center gap-16 mt-10">
-        {data.projects.map((item) => (
+        {projects.map((item) => (
           <motion.div
             key={item._id}
             initial={{ opacity: 0, y: 20 }}

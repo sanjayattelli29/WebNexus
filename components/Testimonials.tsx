@@ -29,9 +29,10 @@ const Testimonials = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    if (data?.testimonials?.length > 0) {
+    const testimonials = data?.testimonials ?? [];
+    if (testimonials.length > 0) {
       const timer = setInterval(() => {
-        setCurrentIndex((prev) => (prev + 1) % data.testimonials.length);
+        setCurrentIndex((prev) => (prev + 1) % testimonials.length);
       }, 5000);
       return () => clearInterval(timer);
     }
@@ -61,7 +62,8 @@ const Testimonials = () => {
     );
   }
 
-  if (!data?.testimonials?.length) {
+  const testimonials = data?.testimonials ?? [];
+  if (testimonials.length === 0) {
     return (
       <div className="py-20">
         <h1 className="heading">
@@ -82,7 +84,7 @@ const Testimonials = () => {
 
       <div className="mt-10 relative h-[300px] overflow-hidden">
         <AnimatePresence mode="wait">
-          {data.testimonials.map((testimonial, index) => (
+          {testimonials.map((testimonial, index) => (
             <motion.div
               key={testimonial._id}
               className="absolute w-full"
@@ -112,7 +114,7 @@ const Testimonials = () => {
       </div>
 
       <div className="flex justify-center gap-2 mt-8">
-        {data.testimonials.map((_, index) => (
+        {testimonials.map((_, index) => (
           <button
             key={index}
             className={`w-3 h-3 rounded-full transition-colors ${
