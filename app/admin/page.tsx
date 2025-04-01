@@ -288,29 +288,6 @@ const AdminPage = () => {
 
         const data = await response.json();
         if (data.success) {
-          // After successful delete, get all remaining projects and sync with index.ts
-          if (type === "projects") {
-            const allProjectsResponse = await fetch("/api/projects");
-            const allProjectsResult = await allProjectsResponse.json();
-
-            if (allProjectsResult.success) {
-              // Sync with index.ts
-              const syncResponse = await fetch("/api/projects/sync", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  projects: allProjectsResult.data,
-                }),
-              });
-
-              if (!syncResponse.ok) {
-                console.error("Failed to sync with index.ts after deletion");
-              }
-            }
-          }
-
           // Update local state
           switch (type) {
             case "projects":
@@ -352,7 +329,6 @@ const AdminPage = () => {
   const handleSave = async (type: string, data: any) => {
     try {
       if (type === "projects") {
-        // First, save to database
         const url = editingItem?._id
           ? `/api/projects/${editingItem._id}`
           : "/api/projects";
@@ -368,146 +344,60 @@ const AdminPage = () => {
         const result = await response.json();
 
         if (result.success) {
-          // After successful save, get all projects and sync with index.ts
-          const allProjectsResponse = await fetch("/api/projects");
-          const allProjectsResult = await allProjectsResponse.json();
-
-          if (allProjectsResult.success) {
-            // Sync with index.ts
-            const syncResponse = await fetch("/api/projects/sync", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                projects: allProjectsResult.data,
-              }),
-            });
-
-            if (syncResponse.ok) {
-              // Refresh projects list
-              fetchProjects();
-            } else {
-              console.error("Failed to sync with index.ts");
-            }
-          }
+          // Refresh projects list
+          fetchProjects();
         } else {
           alert("Failed to save project");
         }
       } else {
-        switch (type) {
-          case "navItems":
-            if (editingItem !== null) {
-              const updatedData = navItems.map((item, index) =>
-                index === editingItem ? data : item
-              );
-              setNavItems(updatedData);
-              localStorage.setItem("navItems", JSON.stringify(updatedData));
-            } else {
-              const updatedData = [...navItems, data];
-              setNavItems(updatedData);
-              localStorage.setItem("navItems", JSON.stringify(updatedData));
+        const endpoint = `${
+          type === "testimonials"
+            ? "/api/testimonials"
+            : type === "workExperience"
+            ? "/api/experience"
+            : type === "socialMedia"
+            ? "/api/social"
+            : ""
+        }${editingItem?._id ? `/${editingItem._id}` : ""}`;
+
+        if (endpoint) {
+          const response = await fetch(endpoint, {
+            method: editingItem?._id ? "PUT" : "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            // Refresh data based on type
+            switch (type) {
+              case "testimonials":
+                const testimonialsResponse = await fetch("/api/testimonials");
+                const testimonialsData = await testimonialsResponse.json();
+                if (testimonialsData.success) {
+                  setTestimonials(testimonialsData.data);
+                }
+                break;
+              case "workExperience":
+                const experienceResponse = await fetch("/api/experience");
+                const experienceData = await experienceResponse.json();
+                if (experienceData.success) {
+                  setWorkExperience(experienceData.data);
+                }
+                break;
+              case "socialMedia":
+                const socialResponse = await fetch("/api/social");
+                const socialData = await socialResponse.json();
+                if (socialData.success) {
+                  setSocialMedia(socialData.data);
+                }
+                break;
             }
-            break;
-          case "gridItems":
-            if (editingItem) {
-              const updatedData = gridItems.map((item) =>
-                item.id === editingItem.id ? { ...item, ...data } : item
-              );
-              setGridItems(updatedData);
-              localStorage.setItem("gridItems", JSON.stringify(updatedData));
-            } else {
-              const updatedData = [
-                ...gridItems,
-                { ...data, id: gridItems.length + 1 },
-              ];
-              setGridItems(updatedData);
-              localStorage.setItem("gridItems", JSON.stringify(updatedData));
-            }
-            break;
-          case "testimonials":
-            if (editingItem !== null) {
-              const updatedData = testimonials.map((t, index) =>
-                index === editingItem ? { ...t, ...data } : t
-              );
-              setTestimonials(updatedData);
-              localStorage.setItem("testimonials", JSON.stringify(updatedData));
-            } else {
-              const updatedData = [...testimonials, data];
-              setTestimonials(updatedData);
-              localStorage.setItem("testimonials", JSON.stringify(updatedData));
-            }
-            break;
-          case "companies":
-            if (editingItem) {
-              const updatedData = companies.map((c) =>
-                c.id === editingItem.id ? { ...c, ...data } : c
-              );
-              setCompanies(updatedData);
-              localStorage.setItem("companies", JSON.stringify(updatedData));
-            } else {
-              const updatedData = [
-                ...companies,
-                { ...data, id: companies.length + 1 },
-              ];
-              setCompanies(updatedData);
-              localStorage.setItem("companies", JSON.stringify(updatedData));
-            }
-            break;
-          case "workExperience":
-            if (editingItem) {
-              const updatedData = workExperience.map((w) =>
-                w.id === editingItem.id ? { ...w, ...data } : w
-              );
-              setWorkExperience(updatedData);
-              localStorage.setItem(
-                "workExperience",
-                JSON.stringify(updatedData)
-              );
-            } else {
-              const updatedData = [
-                ...workExperience,
-                { ...data, id: workExperience.length + 1 },
-              ];
-              setWorkExperience(updatedData);
-              localStorage.setItem(
-                "workExperience",
-                JSON.stringify(updatedData)
-              );
-            }
-            break;
-          case "socialMedia":
-            if (editingItem) {
-              const updatedData = socialMedia.map((s) =>
-                s.id === editingItem.id ? { ...s, ...data } : s
-              );
-              setSocialMedia(updatedData);
-              localStorage.setItem("socialMedia", JSON.stringify(updatedData));
-            } else {
-              const updatedData = [
-                ...socialMedia,
-                { ...data, id: socialMedia.length + 1 },
-              ];
-              setSocialMedia(updatedData);
-              localStorage.setItem("socialMedia", JSON.stringify(updatedData));
-            }
-            break;
-          case "contacts":
-            if (editingItem) {
-              const updatedData = contactData.map((c) =>
-                c._id === editingItem._id ? { ...c, ...data } : c
-              );
-              setContactData(updatedData);
-              localStorage.setItem("contacts", JSON.stringify(updatedData));
-            } else {
-              const updatedData = [
-                ...contactData,
-                { ...data, _id: contactData.length + 1 },
-              ];
-              setContactData(updatedData);
-              localStorage.setItem("contacts", JSON.stringify(updatedData));
-            }
-            break;
+          } else {
+            alert(`Failed to save ${type}`);
+          }
         }
       }
     } catch (error) {

@@ -1,11 +1,37 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { FaLocationArrow } from "react-icons/fa6";
-
-import { projects } from "@/data";
 import { PinContainer } from "./ui/Pin";
 
+interface Project {
+  _id: string;
+  title: string;
+  des: string;
+  img: string;
+  iconLists: string[];
+  link: string;
+}
+
 const RecentProjects = () => {
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("/api/home");
+        const data = await response.json();
+        if (data.success) {
+          setProjects(data.data.projects);
+        }
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <div className="py-20">
       <h1 className="heading">
@@ -19,7 +45,7 @@ const RecentProjects = () => {
             className="lg:min-h-[32.5rem] h-[25rem] flex items-center justify-center sm:w-96 w-[80vw]"
             key={item._id}
           >
-            <PinContainer title="/designdevelop.com" href={item.link}>
+            <PinContainer title="/ui.aceternity.com" href={item.link}>
               <div className="relative flex items-center justify-center sm:w-96 w-[80vw] overflow-hidden h-[20vh] lg:h-[30vh] mb-10">
                 <div
                   className="relative w-full h-full overflow-hidden lg:rounded-3xl"
@@ -35,7 +61,7 @@ const RecentProjects = () => {
                     <iframe
                       src={item.img}
                       title={item.title}
-                      className="absolute inset-0 w-[120%] h-[120%] z-10 scale-[0.9] translate-x-[-10%] translate-y-[-5%]"
+                      className="absolute inset-0 w-full h-full z-10"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                       style={{ border: "none" }}

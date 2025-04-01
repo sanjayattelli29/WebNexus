@@ -134,7 +134,6 @@ export const companies = [
     nameImg: "/dockerName.svg",
   },
 ];
-
 export const workExperience = [
   {
     id: 1,
@@ -142,6 +141,7 @@ export const workExperience = [
     desc: "Led the development of multiple enterprise-level applications using Next.js, TypeScript, and AWS. Implemented server-side rendering and API routes for optimal performance.",
     className: "md:col-span-2",
     thumbnail: "/exp1.svg",
+    link: "https://your-live-site-link.com",
   },
   {
     id: 2,
@@ -149,20 +149,7 @@ export const workExperience = [
     desc: "Architected and implemented modern frontend solutions using React, Next.js, and TypeScript. Focused on performance optimization and responsive design.",
     className: "md:col-span-2",
     thumbnail: "/exp2.svg",
-  },
-  {
-    id: 3,
-    title: "Backend Developer",
-    desc: "Developed scalable backend solutions using Node.js, AWS Lambda, and GraphQL. Implemented secure authentication and API rate limiting.",
-    className: "md:col-span-2",
-    thumbnail: "/exp3.svg",
-  },
-  {
-    id: 4,
-    title: "Full-Stack Developer",
-    desc: "Built full-stack applications using modern web technologies. Implemented CI/CD pipelines and automated deployment processes.",
-    className: "md:col-span-2",
-    thumbnail: "/exp4.svg",
+    link: "https://your-live-site-link.com",
   },
   {
     id: 3,
